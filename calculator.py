@@ -1,5 +1,5 @@
 from typing import Optional
-from PySide6.QtWidgets import QApplication, QWidget, QGridLayout, QLineEdit, QPushButton
+from PySide6.QtWidgets import QApplication, QWidget, QGridLayout, QLineEdit, QPushButton, QSizePolicy
 from PySide6.QtGui import QShortcut, QKeySequence
 from PySide6 import QtCore
 
@@ -35,21 +35,52 @@ class Calculator(QWidget):
         super().__init__()
 
         self.setWindowTitle("My Calculator")
+        self.setStyleSheet("""
+            background-color: rgb(20, 20, 20);
+            color: rgb(220, 220, 220);
+            font-size: 18px;
+        """)
         self.buttons = {}
 
         self.main_layout = QGridLayout(self)
+        self.main_layout.setSpacing(0)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+
+
         self.le_result = QLineEdit("0")
+        self.le_result.setMinimumHeight(50)
+        self.le_result.setAlignment(QtCore.Qt.AlignRight)
         self.le_result.setEnabled(False)
+        self.setStyleSheet("""
+            border: none;
+            border-bottom: 2px solid rbg(30, 30, 30);
+            padding: 0 8px;
+            font-size: 24px
+            font-weight: bold;
+        """)
         self.main_layout.addWidget(self.le_result, 0, 0, 1, 4)
         for button_text, button_position in BUTTONS.items():
             button = QPushButton(button_text)
+            button.setMinimumSize(48, 48)
+            button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
             self.main_layout.addWidget(button, *button_position)
+            button.setStyleSheet(f"""
+                QPushButton{{
+                            border: none;
+                            font-weight: bold;
+                            background-color: {'#1e1e2d' if button_text in OPERATIONS else 'none'}
+                        }}
+                QPushButton:pressed {{background-color: #f31d58;}}
+                """)
+
             if button_text not in ["=", "C"]:
                 button.clicked.connect(self.number_or_operation_pressed)
             self.buttons[button_text] = button
 
         self.buttons["C"].clicked.connect(self.clear_result)
         self.buttons["="].clicked.connect(self.compute_result)
+        self.buttons["="].setStyleSheet("background-color: #f31d58;")
+
         self.connect_keyboard_shortcuts()
 
     @property
